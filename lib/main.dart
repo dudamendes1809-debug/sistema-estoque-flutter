@@ -5,27 +5,23 @@ import 'dart:convert';
 void main() {
   runApp(const MyApp());
 }
-
 class Produto {
   String nome;
   int quantidade;
   int quantidadeMinima;
   double preco;
-
   Produto({
     required this.nome,
     required this.quantidade,
     required this.quantidadeMinima,
     required this.preco,
   });
-
   Map<String, dynamic> toJson() => {
         'nome': nome,
         'quantidade': quantidade,
         'quantidadeMinima': quantidadeMinima,
         'preco': preco,
       };
-
   factory Produto.fromJson(Map<String, dynamic> json) {
     return Produto(
       nome: json['nome'],
@@ -35,10 +31,8 @@ class Produto {
     );
   }
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -60,30 +54,23 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
   List<Produto> produtos = [];
-
   @override
   void initState() {
     super.initState();
     carregarProdutos();
   }
-
-  // Função que grava os dados no "disco" do PC/Celular
   Future<void> salvarProdutos() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> lista = produtos.map((p) => jsonEncode(p.toJson())).toList();
     await prefs.setStringList('produtos', lista);
   }
-
-  // Função que busca os dados ao abrir o app
   Future<void> carregarProdutos() async {
     final prefs = await SharedPreferences.getInstance();
     List<String>? lista = prefs.getStringList('produtos');
@@ -93,7 +80,6 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
   void menuAdicionar() {
     showModalBottomSheet(
       context: context,
@@ -152,12 +138,10 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
   void excluir(int index) {
     setState(() => produtos.removeAt(index));
     salvarProdutos();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,7 +182,6 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 final p = produtos[index];
                 bool alerta = p.quantidade <= p.quantidadeMinima;
-
                 return Card(
                   elevation: 2,
                   margin: const EdgeInsets.only(bottom: 12),
@@ -250,7 +233,6 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(
                             builder: (_) => ControlePage(produto: p)),
                       );
-                      // Ao voltar da tela de controle, salvamos as alterações de quantidade
                       setState(() {});
                       salvarProdutos();
                     },
@@ -267,8 +249,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-// ================= CADASTRO =================
 class CadastroPage extends StatefulWidget {
   final Produto? produto;
   const CadastroPage({super.key, this.produto});
@@ -276,13 +256,11 @@ class CadastroPage extends StatefulWidget {
   @override
   State<CadastroPage> createState() => _CadastroPageState();
 }
-
 class _CadastroPageState extends State<CadastroPage> {
   final nome = TextEditingController();
   final qtd = TextEditingController();
   final min = TextEditingController();
   final preco = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -293,7 +271,6 @@ class _CadastroPageState extends State<CadastroPage> {
       preco.text = widget.produto!.preco.toString();
     }
   }
-
   void salvar() {
     if (nome.text.isEmpty ||
         qtd.text.isEmpty ||
@@ -312,7 +289,6 @@ class _CadastroPageState extends State<CadastroPage> {
           preco: double.parse(preco.text.replaceAll(',', '.')),
         ));
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -344,7 +320,6 @@ class _CadastroPageState extends State<CadastroPage> {
       ),
     );
   }
-
   Widget _buildInput(TextEditingController controller, String label, IconData icon,
       {bool isNumeric = false}) {
     return Padding(
@@ -365,15 +340,12 @@ class _CadastroPageState extends State<CadastroPage> {
     );
   }
 }
-
-// ================= CONTROLE (CORRIGIDO COM CHAVES) =================
 class ControlePage extends StatefulWidget {
   final Produto produto;
   const ControlePage({super.key, required this.produto});
   @override
   State<ControlePage> createState() => _ControlePageState();
 }
-
 class _ControlePageState extends State<ControlePage> {
   final mov = TextEditingController();
 
@@ -395,7 +367,6 @@ class _ControlePageState extends State<ControlePage> {
     mov.clear();
     verificar();
   }
-
   void verificar() {
     if (widget.produto.quantidade == 0) {
       msg("❌ ATENÇÃO: Produto zerado!");
@@ -403,12 +374,10 @@ class _ControlePageState extends State<ControlePage> {
       msg("⚠️ Estoque baixo!");
     }
   }
-
   void msg(String t) {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t)));
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -473,7 +442,6 @@ class _ControlePageState extends State<ControlePage> {
       ),
     );
   }
-
   Widget _infoCard(String label, String value, Color valColor) {
     return Column(
       children: [
@@ -485,15 +453,12 @@ class _ControlePageState extends State<ControlePage> {
     );
   }
 }
-
-// ================= RELATÓRIO GERAL =================
 class RelatorioGeralPage extends StatelessWidget {
   final List<Produto> produtos;
   const RelatorioGeralPage({super.key, required this.produtos});
 
   @override
   Widget build(BuildContext context) {
-    // Cálculo de valor total removido daqui
     return Scaffold(
       appBar: AppBar(
         title: const Text("RELATÓRIO DE ESTOQUE"),
@@ -501,7 +466,6 @@ class RelatorioGeralPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Cabeçalho simplificado apenas com o título da contagem
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -526,7 +490,7 @@ class RelatorioGeralPage extends StatelessWidget {
               itemCount: produtos.length,
               itemBuilder: (context, i) {
                 final p = produtos[i];
-                return Card( // Adicionei um Card para ficar mais organizado visualmente
+                return Card(
                   elevation: 2,
                   margin: const EdgeInsets.only(bottom: 10),
                   child: ListTile(
@@ -539,7 +503,6 @@ class RelatorioGeralPage extends StatelessWidget {
                       "Quantidade em estoque: ${p.quantidade} unidades",
                       style: const TextStyle(fontSize: 15),
                     ),
-                    // Trailing (preço à direita) removido daqui
                   ),
                 );
               },
@@ -550,7 +513,6 @@ class RelatorioGeralPage extends StatelessWidget {
     );
   }
 }
-// ================= ESTOQUE BAIXO =================
 class EstoqueBaixoPage extends StatelessWidget {
   final List<Produto> produtos;
   const EstoqueBaixoPage({super.key, required this.produtos});
